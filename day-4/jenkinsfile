@@ -6,6 +6,8 @@ pipeline {
         stage("just print"){
             steps{
                 echo "Hello boi!!!!!!"
+                call("Aryan")
+                
             }
         }
     }
