@@ -6,7 +6,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'hello-world', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     echo "Username: ${USERNAME}"
-                    echo "Password: ${PASSWORD}" // ⚠️ For learning ONLY
+                    sh 'curl -u $USERNAME:$PASSWORD https://httpbin.org/basic-auth/user/passwd'
                 }
             }
         }
