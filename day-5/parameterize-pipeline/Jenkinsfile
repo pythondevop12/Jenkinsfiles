@@ -1,0 +1,20 @@
+pipeline{
+    parameters{
+        string(name: 'Environment', defaultValue: "dev")
+        choice(name: 'AssetGroup', choice: ['dev','prod'] description: 'this is for assetgroup')
+    }
+    environment{
+        def Environment = "params.{AssetGroup}"
+
+    }
+    stages{
+        stage('deploy'){
+            if (env.Environment == "dev"){
+                echo "hello Dev"
+            } else if{
+                echo "hello prod"
+            }
+
+        }
+    }
+}
