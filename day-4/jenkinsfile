@@ -5,7 +5,7 @@ pipeline {
     stages{
         stage("just print"){
             steps{
-                "echo Hello boi!!!!!!"
+                echo "Hello boi!!!!!!"
             }
         }
     }
