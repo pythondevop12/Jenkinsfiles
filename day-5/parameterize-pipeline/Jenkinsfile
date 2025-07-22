@@ -11,7 +11,7 @@ pipeline{
         stage('deploy'){
             if (env.Environment == "dev"){
                 echo "hello Dev"
-            } else if{
+            } else if(env.Environment == "prod"){
                 echo "hello prod"
             }
 
