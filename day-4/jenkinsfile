@@ -1,0 +1,12 @@
+@Library('mysharelib') _
+
+pipeline {
+    agent any
+    stages{
+        stage("just print"){
+            steps{
+                "echo Hello boi!!!!!!"
+            }
+        }
+    }
+}

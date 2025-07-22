@@ -12,3 +12,47 @@ pipeline {
         }
     }
 }
+pipeline {
+    agent any
+
+    environment {
+        PYTHONUNBUFFERED = '1'
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/pythondevop12/python-hello-world',
+                    credentialsId: 'gitpass'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    source venv/bin/activate
+                    pip install --upgrade pip
+                    pip install fastapi uvicorn
+                '''
+            }
+        }
+
+        stage('Run FastAPI') {
+            steps {
+                sh '''
+                    source venv/bin/activate
+                    nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > fastapi.log 2>&1 &
+                    echo "FastAPI started on port 8000"
+                '''
+            }
+        }
+
+        stage('Print Logs') {
+            steps {
+                sh 'cat fastapi.log || true'
+            }
+        }
+    }
+}
