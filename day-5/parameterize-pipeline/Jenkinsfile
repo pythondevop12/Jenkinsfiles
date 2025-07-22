@@ -9,10 +9,12 @@ pipeline{
     }
     stages{
         stage('deploy'){
-            if (env.Environment == "dev"){
+            steps{
+                       if (env.Environment == "dev"){
                 echo "hello Dev"
             } else if(env.Environment == "prod"){
                 echo "hello prod"
+            }
             }
 
         }
