@@ -2,7 +2,7 @@ pipeline{
     agent any
     parameters{
         string(name: 'Environment', defaultValue: "dev")
-        choice(name: 'AssetGroup', choice: ['dev','prod'], description: 'this is for assetgroup')
+        choice(name: 'AssetGroup', choices: ['dev','prod'], description: 'this is for assetgroup')
     }
     environment{
         def Environment = "params.{AssetGroup}"
@@ -11,10 +11,12 @@ pipeline{
     stages{
         stage('deploy'){
             steps{
-                       if (env.Environment == "dev"){
+                script{
+                                           if (env.Environment == "dev"){
                 echo "hello Dev"
             } else if(env.Environment == "prod"){
-                echo "hello prod"
+               echo "hello prod"
+                }
             }
             }
 
