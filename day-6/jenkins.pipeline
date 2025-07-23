@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ami_val', choices: ['ami-0cbbe2c6a1bb2ad63', 'ami-020cba7c55df1f615'], description: 'AMI value')
+        choice(name: 'instance_type_val', choices: ['t2.micro', 't2.medium'], description: 'Instance type')
+        choice(name: 'sg_val', choices: ['sg-0c5f9faf7d66df451', 'sg-06d4d84fa412c60aa'], description: 'Security Group ID')
+    }
+
+    environment {
+        AMI_VALUE = "${params.ami_val}"
+        INSTANCE_TYPE = "${params.instance_type_val}"
+        SECURITY_GROUP_VALUE = "${params.sg_val}"
+    }
+
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                sh 'pwd && ls -l'
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        cd day-6/terraformec2
+                        terraform init
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Destroy Plan') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        cd day-6/terraformec2
+                        terraform plan -destroy \
+                          -var="ami_val=${AMI_VALUE}" \
+                          -var="instance_type_val=${INSTANCE_TYPE}" \
+                          -var="sg_val=${SECURITY_GROUP_VALUE}"
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            steps {
+                input message: 'Do you want to destroy the infrastructure?'
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        cd day-6/terraformec2
+                        terraform destroy -auto-approve \
+                          -var="ami_val=${AMI_VALUE}" \
+                          -var="instance_type_val=${INSTANCE_TYPE}" \
+                          -var="sg_val=${SECURITY_GROUP_VALUE}"
+                    '''
+                }
+            }
+        }
+    }
+}
