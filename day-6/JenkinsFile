@@ -3,7 +3,7 @@ pipeline{
     parameters{
         choice(name:'ami_val', choices:['ami-0cbbe2c6a1bb2ad63','ami-020cba7c55df1f615'], description:'this is the ami value')
         choice(name:'instance_type_val', choices:['t2.micro','t2.medium'], description:'this is used for instance type')
-        choice(name:'sg_val', choices:['sg-0c5f9faf7d66df451','sg-06d4d84fa412c60aa', description: 'this is sg val'])
+        choice(name:'sg_val', choices:['sg-0c5f9faf7d66df451','sg-06d4d84fa412c60aa'], description: 'this is sg val')
 
         environment{
             def AMI_VALUE = "${params.ami_val}"
