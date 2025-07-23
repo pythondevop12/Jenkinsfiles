@@ -1,16 +1,16 @@
 pipeline {
     agent any
 
-    environment {
-        AMI_VALUE = "${params.ami_val}"
-        SECURITY_GROUP_VALUE = "${params.sg_val}"
-        INSTANCE_TYPE = "${params.instance_type_val}"
+    parameters {
+        choice(name: 'ami_val', choices: ['ami-0cbbe2c6a1bb2ad63', 'ami-020cba7c55df1f615'], description: 'AMI value')
+        choice(name: 'instance_type_val', choices: ['t2.micro', 't2.medium'], description: 'Instance type')
+        choice(name: 'sg_val', choices: ['sg-0c5f9faf7d66df451', 'sg-06d4d84fa412c60aa'], description: 'Security Group ID')
     }
 
-    parameters {
-        choice(name:'ami_val', choices:['ami-0cbbe2c6a1bb2ad63','ami-020cba7c55df1f615'], description:'AMI value')
-        choice(name:'instance_type_val', choices:['t2.micro','t2.medium'], description:'Instance type')
-        choice(name:'sg_val', choices:['sg-0c5f9faf7d66df451','sg-06d4d84fa412c60aa'], description:'SG ID')
+    environment {
+        AMI_VALUE = "${params.ami_val}"
+        INSTANCE_TYPE = "${params.instance_type_val}"
+        SECURITY_GROUP_VALUE = "${params.sg_val}"
     }
 
     stages {
@@ -31,23 +31,23 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Plan') {
-    steps {
-        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-            sh '''
-                export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-            '''
-            sh """
-                terraform plan \\
-                  -var="ami_val=${env.AMI_VALUE}" \\
-                  -var="instance_type_val=${env.INSTANCE_TYPE}" \\
-                  -var="sg_val=${env.SECURITY_GROUP_VALUE}"
-            """
-        }
-    }
-}
 
+        stage('Terraform Plan') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                    '''
+                    sh """
+                        terraform plan \\
+                          -var="ami_val=${env.AMI_VALUE}" \\
+                          -var="instance_type_val=${env.INSTANCE_TYPE}" \\
+                          -var="sg_val=${env.SECURITY_GROUP_VALUE}"
+                    """
+                }
+            }
+        }
 
         stage('Terraform Apply') {
             steps {
@@ -56,11 +56,13 @@ pipeline {
                     sh '''
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        terraform apply -auto-approve \
-                          -var="ami_val=${AMI_VALUE}" \
-                          -var="instance_type_val=${INSTANCE_TYPE}" \
-                          -var="sg_val=${SECURITY_GROUP_VALUE}"
                     '''
+                    sh """
+                        terraform apply -auto-approve \\
+                          -var="ami_val=${env.AMI_VALUE}" \\
+                          -var="instance_type_val=${env.INSTANCE_TYPE}" \\
+                          -var="sg_val=${env.SECURITY_GROUP_VALUE}"
+                    """
                 }
             }
         }
