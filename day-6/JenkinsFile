@@ -1,0 +1,43 @@
+pipeline{
+    agent any
+    parameters{
+        choice(name:'ami_val', choices:['ami-0cbbe2c6a1bb2ad63','ami-020cba7c55df1f615'], description:'this is the ami value')
+        choice(name:'instance_type_val', choices:['t2.micro','t2.medium'], description:'this is used for instance type')
+        choice(name:'sg_val', choices:['sg-0c5f9faf7d66df451','sg-06d4d84fa412c60aa', description: 'this is sg val'])
+
+        environment{
+            def AMI_VALUE = "${params.ami_val}"
+            def SECURITY_GROUP_VALUE = "${params.sg_val}"
+            def INSTANCE_TYPE = "${params.instance_type_val}"
+        }
+        stages{
+            stage('checkout scm'){
+                steps{
+                    checkout scm
+                }
+            }
+            stage('terraform initialization'){
+                steps{
+                    sh 'terraform init'
+                }
+            }
+            stage('terraform plan'){
+                sh '''
+                terraform plan \
+                -var=ami_val=$AMI_VALUE \
+                -var=instance_type_val=$INSTANCE_TYPE \
+                -var=sg_val=$SECURITY_GROUP_VALUE
+                '''
+            }
+            stage('terraform apply'){
+                                input message: "Do you want to apply the changes?"
+                sh """
+                terraform apply -auto-approve \
+                  -var ami_val=$AMI_VALUE \
+                  -var instance_type_val=$INSTANCE_TYPE \
+                  -var sg_val=$SECURITY_GROUP
+                """
+            }
+        }
+    }
+}
