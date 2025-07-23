@@ -40,7 +40,7 @@ pipeline {
                     sh '''
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        cd terraformec2
+                        cd day-6/terraformec2
                         terraform plan \
                           -var="ami_val=${AMI_VALUE}" \
                           -var="instance_type_val=${INSTANCE_TYPE}" \
@@ -57,7 +57,7 @@ pipeline {
                     sh '''
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        cd terraformec2
+                        cd day-6/terraformec2
                         terraform apply -auto-approve \
                           -var="ami_val=${AMI_VALUE}" \
                           -var="instance_type_val=${INSTANCE_TYPE}" \
