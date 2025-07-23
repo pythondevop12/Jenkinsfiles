@@ -9,6 +9,8 @@ pipeline{
             def AMI_VALUE = "${params.ami_val}"
             def SECURITY_GROUP_VALUE = "${params.sg_val}"
             def INSTANCE_TYPE = "${params.instance_type_val}"
+            def AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+            def AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         }
         stages{
             stage('checkout scm'){
